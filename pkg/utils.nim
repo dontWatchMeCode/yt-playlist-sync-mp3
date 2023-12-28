@@ -6,7 +6,7 @@ import std/strutils
 proc checkBins*() =
     var err = false
     var status: int
-    let commands = @["yt-dlp -h", "ffmpeg -h", "ffprobe -h", "cat --help"]
+    let commands = @["yt-dlp -h", "ffmpeg -h", "ffprobe -h"]
 
     for c in commands:
         status = execCmd(c & " > /dev/null 2>&1")
@@ -16,8 +16,6 @@ proc checkBins*() =
 
     if err:
         quit(1)
-    else:
-        echo "All executables found."
 
 proc getFiles*(): seq[string] =
     echo "Checking files..."
@@ -45,11 +43,14 @@ proc getFiles*(): seq[string] =
 proc getConfig*(configFile: string): tuple[found: bool, url: string] =
     echo "Loading config..."
 
-    if not fileExists(configFile):
-        return (false, "")
+    if fileExists(configFile):
+        for line in readFile(configFile).split("\n"):
+            if line.startsWith("purl="):
+                return (true, line.replace("purl=", "").strip())
 
-    for line in readFile(configFile).split("\n"):
-        if line.startsWith("purl="):
-            return (true, line.replace("purl=", "").strip())
-
+    echo "No valid config file found."
     return (false, "")
+
+proc setConfig*(configFile: string, url: string) =
+    echo "Saving config..."
+    writeFile(configFile, "purl=" & url)

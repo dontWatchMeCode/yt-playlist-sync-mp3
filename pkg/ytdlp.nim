@@ -10,9 +10,15 @@ proc getUrlsFromPlaylist*(url: string): seq[string] =
         echo "Error loading videos from the playlist.\nPlease check or delete your config file\n---\n", $stdout
         quit(1)
 
-    return parseJson(stdout)["entries"].mapIt(it["url"].getStr())
+    let urls = parseJson(stdout)["entries"].mapIt(it["url"].getStr())
+    echo "> Found ", urls.len, " videos in the playlist."
+    return urls
 
 proc downloadMp3*(url: string) =
-    let status = execCmd("yt-dlp --add-metadata --extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail \"" & url & "\"")
+    echo "Downloading: ", url
+
+    let (_, status) = execCmdEx("yt-dlp --add-metadata --extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail \"" & url & "\"")
     if status != 0:
-        echo "Error downloading: ", url, " > skipping..."
+        echo "> Error downloading: ", url, " > skipping..."
+    else:
+        echo "> Download done."
