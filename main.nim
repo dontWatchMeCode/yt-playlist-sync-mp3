@@ -1,11 +1,12 @@
 import os, std/[json, osproc, strutils, sequtils]
 
-const CONFIG_FILE_NAME = ".yt-playlist-sync-mp3.config"
+const
+    CONFIG_FILE_NAME = ".yt-playlist-sync-mp3.config"
 
 proc getYtUrlFromPlaylist(playlistUrl: string): seq[string] =
     let (stdout, status) = execCmdEx("yt-dlp --no-warnings --dump-single-json --flat-playlist \"" & playlistUrl & "\"")
     if status != 0 or stdout.contains("ERROR:"):
-        echo "error loading getting video from playlist\nchange or delete your config file: ", $CONFIG_FILE_NAME, "\n---\n", $stdout
+        echo "Error loading videos from the playlist.\nPlease check or delete your config file: ", $CONFIG_FILE_NAME, "\n---\n", $stdout
         quit(1)
 
     return parseJson(stdout)["entries"].mapIt(it["url"].getStr())
@@ -13,7 +14,7 @@ proc getYtUrlFromPlaylist(playlistUrl: string): seq[string] =
 proc downloadYtAdMp3(url: string) =
     let status = execCmd("yt-dlp --add-metadata --extract-audio --audio-format mp3 --embed-thumbnail \"" & url & "\"")
     if status != 0:
-        echo "error downloading: ", url
+        echo "Error downloading: ", url
         quit(1)
 
 proc getMp3FilesFromCurrentDir(): seq[string] =
@@ -22,7 +23,7 @@ proc getMp3FilesFromCurrentDir(): seq[string] =
     for f in walkFiles("./*.mp3"):
         let (stdout, status) = execCmdEx("ffprobe -v quiet -print_format json -show_format -show_streams \"" & f & "\"")
         if status != 0:
-            echo "error running ffprobe on: ",f," \n---\n", $stdout
+            echo "Error running ffprobe on: ", f, "\n---\n", $stdout
             quit(1)
 
         if stdout.len > 0:
@@ -50,21 +51,20 @@ proc main() =
     let config = getConfig()
 
     if not config.found:
-        echo "no valid config file found,\nplease enter a playlist url to create one in the current directory:"
-        let input = readLine(stdin).strip();
+        echo "No valid config file found.\nPlease enter a playlist URL to create one in the current directory:"
+        let input = readLine(stdin).strip()
         videoUrls = getYtUrlFromPlaylist(input)
-        echo "found ", videoUrls.len, " videos in playlist\nwriting config file"
+        echo "Found ", videoUrls.len, " videos in the playlist.\nWriting config file."
         writeFile(CONFIG_FILE_NAME, "purl=" & input)
     else:
         videoUrls = getYtUrlFromPlaylist(config.url)
-        echo "found ", videoUrls.len, " videos in playlist"
-
+        echo "Found ", videoUrls.len, " videos in the playlist."
 
     for url in videoUrls:
         if not filesInCurrentPath.contains(url):
-            echo "downloading: ", url
+            echo "Downloading: ", url
             downloadYtAdMp3(url)
         else:
-            echo "skipping: ", url
+            echo "Skipping: ", url
 
 main()
