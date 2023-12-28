@@ -13,6 +13,6 @@ proc getUrlsFromPlaylist*(url: string): seq[string] =
     return parseJson(stdout)["entries"].mapIt(it["url"].getStr())
 
 proc downloadMp3*(url: string) =
-    let status = execCmd("yt-dlp --add-metadata --extract-audio --audio-format mp3 --embed-thumbnail \"" & url & "\"")
+    let status = execCmd("yt-dlp --add-metadata --extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail \"" & url & "\"")
     if status != 0:
         echo "Error downloading: ", url, " > skipping..."
