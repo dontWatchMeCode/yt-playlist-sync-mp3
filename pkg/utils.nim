@@ -31,9 +31,14 @@ proc getFiles*(): seq[string] =
             quit(1)
 
         if stdout.len > 0:
-            files.add((parseJson(stdout)["format"]["tags"]["purl"].getStr()))
+            try:
+                let purl = parseJson(stdout)["format"]["tags"]["purl"].getStr()
+                files.add(purl)
+            except:
+                echo f, ": missing purl, skipping"
+                continue
         else:
-            echo f, ": missing purl, skipping"
+            echo f, ": missing ffprobe data, skipping"
 
     return files
 
