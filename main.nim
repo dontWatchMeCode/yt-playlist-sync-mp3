@@ -5,8 +5,8 @@ import ./pkg/utils
 
 const CONFIG_FILE_NAME = ".yt-playlist-sync-mp3.config"
 
-let filesInCurrentPath = utils.getFiles()
 let config = utils.getConfig(CONFIG_FILE_NAME)
+let filesInCurrentPath = utils.getFiles()
 
 var videoUrls: seq[string]
 
