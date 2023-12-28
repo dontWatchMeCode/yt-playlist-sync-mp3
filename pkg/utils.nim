@@ -40,11 +40,11 @@ proc getFiles*(): seq[string] =
 proc getConfig*(configFile: string): tuple[found: bool, url: string] =
     echo "Loading config..."
 
-    var (stdout, status) = execCmdEx("cat \"" & configFile & "\"")
+    let (stdout, status) = execCmdEx("cat \"" & configFile & "\"")
     if status != 0:
         return (false, "")
 
-    var purl = stdout.replace("purl=", "").replace("\n", "").strip()
+    let purl = stdout.replace("purl=", "").replace("\n", "").strip()
     if purl.len > 0:
         return (true, purl)
 
