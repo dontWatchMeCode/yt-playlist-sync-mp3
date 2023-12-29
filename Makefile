@@ -2,12 +2,15 @@ build:
 	nim -o:bin/main -d:release --opt:size --passL:-s c main.nim
 
 build-debug:
-	nim -o:bin/main -d:debug c main.nim && cp bin/main ~/.local/bin/yt-dl-pls-debug
+	nim -o:bin/main -d:debug c main.nim && cp bin/main ~/.local/bin/yt-pl-sync-debug
 
-docker-build:
-	docker build . -t debug/yt-playlist-sync-mp3
+build-debug-rm:
+	rm ~/.local/bin/yt-pl-sync-debug
 
-# 	## run example ##
+# 	## build image ##
+# 	docker build . -t debug/yt-playlist-sync-mp3
+#
+# 	## run image ##
 #
 #	docker run \
 #		--user $(id -u):$(id -g) \

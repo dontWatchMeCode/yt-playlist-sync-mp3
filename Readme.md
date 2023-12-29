@@ -3,4 +3,4 @@
 ## TODO
 
 - [ ] readme / how to use
-- [ ] docker container / easy install / easy way to run
+- [x] docker container / easy install / easy way to run
