@@ -10,6 +10,8 @@ RUN make build
 
 # app
 FROM alpine:3.19 AS app
+LABEL org.opencontainers.image.source="https://github.com/dontWatchMeCode/yt-playlist-sync-mp3/"
+
 WORKDIR /mnt/vdata
 
 COPY --from=builder /builder/bin/main /usr/local/bin/yt-dl-pl-sync
