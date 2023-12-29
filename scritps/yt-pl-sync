@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+function help() {
+    echo "Usage: yt-pl-sync [OPTION/NOTHING]"
+    echo "Download youtube playlist as mp3"
+    echo ""
+    echo "  no args         run the tool in the current directory"
+    echo "  -h, --help      display this help and exit"
+    echo "  -u, --update    update the docker image"
+    echo ""
+    echo "Source: https://github.com/dontWatchMeCode/yt-playlist-sync-mp3"
+}
+
+if [ $# -eq 0 ]; then
+    docker run \
+        --user "$(id -u)":"$(id -g)" \
+        --init -it --rm \
+        -v .:/mnt/vdata \
+        ghcr.io/dontwatchmecode/yt-playlist-sync-mp3:latest \
+        sh -c 'trap "exit 0" SIGINT && yt-dl-pl-sync'
+elif [ $# -eq 1 ]; then
+    arg=$1
+
+    if [ "$arg" == '-u' ] || [ "$arg" == '--update' ]; then
+        docker pull ghcr.io/dontwatchmecode/yt-playlist-sync-mp3:latest
+    else
+        help
+    fi
+else
+    help
+fi
