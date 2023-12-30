@@ -46,7 +46,6 @@ elif [ $# -eq 1 ]; then
 
             cd "$directory" || exit 1
             run || exit 0
-            exit 0
         done
     else
         help
