@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+trap - INT
+
 function help() {
     echo "Usage: yt-pl-sync [OPTION/NOTHING]"
     echo "Download youtube playlist as mp3"
@@ -25,6 +27,27 @@ function run() {
         sh -c 'trap "exit 0" SIGINT && yt-dl-pl-sync'
 }
 
+function findRun() {
+    echo "Searching for config files..."
+
+    rootPath=$(realpath .)
+
+    paths=$(find . -type f -name ".yt-playlist-sync-mp3.config" | grep -v "./.local/share/Trash")
+    for path in $paths; do
+        cd "$rootPath" || exit 1
+
+        echo "Found config file:"
+        echo "> $path"
+        echo "Running yt-pl-sync in the directory..."
+
+        directory=$(dirname "$path")
+        directory=$(realpath "$directory")
+
+        cd "$directory" || exit 1
+        run || exit 0
+    done
+}
+
 if [ $# -eq 0 ]; then
     run
 elif [ $# -eq 1 ]; then
@@ -33,20 +56,8 @@ elif [ $# -eq 1 ]; then
     if [ "$arg" == '-u' ] || [ "$arg" == '--update' ]; then
         update
     elif [ "$arg" == '-f' ] || [ "$arg" == '--find' ]; then
-        echo "Searching for config files..."
-
-        paths=$(find . -type f -name ".yt-playlist-sync-mp3.config" | grep -v "./.local/share/Trash")
-        for path in $paths; do
-            echo "Found config file:"
-            echo "> $path"
-            echo "Running yt-pl-sync in the directory..."
-
-            directory=$(dirname "$path")
-            directory=$(realpath "$directory")
-
-            cd "$directory" || exit 1
-            run || exit 0
-        done
+        trap "exit" INT
+        findRun
     else
         help
     fi
