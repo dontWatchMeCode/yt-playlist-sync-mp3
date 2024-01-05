@@ -19,6 +19,28 @@ function update() {
 }
 
 function run() {
+    nonMp3Files=$(find . -type f | grep -v -E "\.mp3" | grep -v ".yt-playlist-sync-mp3.config")
+
+    if [ -n "$nonMp3Files" ]; then
+        echo "╭──"
+        echo "│ Found non-mp3 files:"
+        for file in $nonMp3Files; do
+            echo "│ $file"
+        done
+        echo "│"
+        read -r -p "│ Do you want to delete these files? (y/n) " yn
+        echo "╰──"
+
+        case $yn in
+        y)
+            echo "Deleting..."
+            for file in $nonMp3Files; do
+                rm "$file" || exit 1
+            done
+            ;;
+        esac
+    fi
+
     docker run \
         --user "$(id -u)":"$(id -g)" \
         --init -it --rm \
@@ -28,7 +50,9 @@ function run() {
 }
 
 function findRun() {
-    echo "Searching for config files..."
+    echo "╭──"
+    echo "│ Searching for config files..."
+    echo "╰──"
 
     rootPath=$(realpath .)
 
@@ -36,9 +60,11 @@ function findRun() {
     for path in $paths; do
         cd "$rootPath" || exit 1
 
-        echo "Found config file:"
-        echo "> $path"
-        echo "Running yt-pl-sync in the directory..."
+        echo "╭──"
+        echo "│ Found config file:"
+        echo "│ $path"
+        echo "│ Running yt-pl-sync in the directory..."
+        echo "╰──"
 
         directory=$(dirname "$path")
         directory=$(realpath "$directory")
@@ -50,6 +76,8 @@ function findRun() {
 
 if [ $# -eq 0 ]; then
     run
+
+    exit 0
 elif [ $# -eq 1 ]; then
     arg=$1
 
@@ -61,6 +89,10 @@ elif [ $# -eq 1 ]; then
     else
         help
     fi
+
+    exit 0
 else
     help
+
+    exit 0
 fi
