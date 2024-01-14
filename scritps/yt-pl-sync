@@ -24,8 +24,8 @@ function run() {
     if [ -n "$nonMp3Files" ]; then
         echo "╭──"
         echo "│ Found non-mp3 files:"
-        for file in $nonMp3Files; do
-            echo "│ $file"
+        echo "$nonMp3Files" | while IFS= read -r line; do
+            echo "│ $line"
         done
         echo "│"
         read -r -p "│ Do you want to delete these files? (y/n) " yn
@@ -34,8 +34,8 @@ function run() {
         case $yn in
         y)
             echo "Deleting..."
-            for file in $nonMp3Files; do
-                rm "$file" || exit 1
+            echo "$nonMp3Files" | while IFS= read -r line; do
+                rm "$line" || exit 1
             done
             ;;
         esac
